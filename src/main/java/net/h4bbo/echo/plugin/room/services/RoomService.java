@@ -1,6 +1,7 @@
 package net.h4bbo.echo.plugin.room.services;
 
 import net.h4bbo.echo.api.services.room.IRoomService;
+import net.h4bbo.echo.plugin.room.Room;
 import net.h4bbo.echo.plugin.room.RoomPlugin;
 import net.h4bbo.echo.storage.StorageContextFactory;
 import net.h4bbo.echo.storage.models.room.RoomData;
@@ -28,16 +29,33 @@ public class RoomService implements IRoomService {
         return this.getRooms(x -> x.equals(RoomData::getOwnerId, userId));
     }
 
+    @Override
+    public List<RoomData> search(String queryString) {
+        return this.getRooms(x -> x
+                .open()
+                .equalsIgnoreCase(UserData.class, UserData::getName, queryString)
+                .or()
+                .like(RoomData::getName, queryString + "%")
+                .close()
+                .and()
+                .isNotNull(UserData.class, UserData::getName)
+                );
+    }
+
+
     public List<RoomData> getRooms(Function<Query.Filters<RoomData>, Query.Filters<RoomData>> predicate) {
         try (var ctx = StorageContextFactory.getStorage()) {
-            return ctx.from(RoomData.class).as("r")
+            var query = ctx.from(RoomData.class).as("r")
                     .select(s -> s
                             .all(RoomData.class)
                             .col(UserData.class, UserData::getName).as("owner_name"))
                     .leftJoin(UserData.class, "u", on ->
                             on.eq(RoomData::getOwnerId, UserData::getId))
                     .filter(predicate)
-                    .toList();
+                    .orderBy(RoomData::getVisitorsNow, false);
+
+            // System.out.println("Query: " + query.toSqlWithParams());
+            return query.toList();
         } catch (SQLException e) {
             this.plugin.getLogger().error("Error loading navigator categories: ", e);
         }
