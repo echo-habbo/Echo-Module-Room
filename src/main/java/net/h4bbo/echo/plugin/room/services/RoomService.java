@@ -1,22 +1,25 @@
 package net.h4bbo.echo.plugin.room.services;
 
 import net.h4bbo.echo.api.services.room.IRoomService;
-import net.h4bbo.echo.plugin.room.Room;
-import net.h4bbo.echo.plugin.room.RoomPlugin;
 import net.h4bbo.echo.storage.StorageContextFactory;
 import net.h4bbo.echo.storage.models.room.RoomData;
 import net.h4bbo.echo.storage.models.user.UserData;
 import org.oldskooler.entity4j.Query;
+import org.oldskooler.simplelogger4j.SimpleLog;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
 public class RoomService implements IRoomService {
-    public RoomPlugin plugin;
+    public static final SimpleLog logger = SimpleLog.of(RoomService.class);
 
-    public RoomService(RoomPlugin plugin) {
-        this.plugin = plugin;
+    @Override
+    public RoomData getRoom(int roomId) {
+        return this.getRooms(x -> x.equals(RoomData::getId, roomId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new NullPointerException("Room with ID " + roomId + " not found"));
     }
 
     @Override
@@ -53,11 +56,9 @@ public class RoomService implements IRoomService {
                             on.eq(RoomData::getOwnerId, UserData::getId))
                     .filter(predicate)
                     .orderBy(RoomData::getVisitorsNow, false);
-
-            // System.out.println("Query: " + query.toSqlWithParams());
             return query.toList();
         } catch (SQLException e) {
-            this.plugin.getLogger().error("Error loading navigator categories: ", e);
+            logger.error("Error loading rooms: ", e);
         }
 
         return null;
