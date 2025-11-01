@@ -38,12 +38,6 @@ public class RoomEntityManager extends IRoomEntityManager {
                     .append(DataCodec.STRING, " ")
                     .append(DataCodec.VL64_INT, this.getRoom().getData().getId())
                     .send(player);
-
-            PacketCodec.create(46)
-                    .append(DataCodec.BYTES, "landscape")
-                    .append(DataCodec.BYTES, "/")
-                    .append(DataCodec.BYTES, "0")
-                    .send(player);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
