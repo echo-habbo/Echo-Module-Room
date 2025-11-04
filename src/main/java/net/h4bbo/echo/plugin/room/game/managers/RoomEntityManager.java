@@ -21,25 +21,16 @@ public class RoomEntityManager extends IRoomEntityManager {
 
     @Override
     public void enter(IEntity entity) {
-
-        if (entity.getType() == EntityType.PLAYER) {
-            this.enterForClient((IPlayer) entity);
-        }
-    }
-
-    private void enterForClient(IPlayer player) {
-        try {
+        if (entity.getType().isClient()) {
             PacketCodec.create(166)
                     .append(DataCodec.STRING, "/client/")
-                    .send(player);
+                    .send(entity);
 
             PacketCodec.create(69)
                     .append(DataCodec.STRING, this.getRoom().getData().getModel())
                     .append(DataCodec.STRING, " ")
                     .append(DataCodec.VL64_INT, this.getRoom().getData().getId())
-                    .send(player);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+                    .send(entity);
         }
     }
 }
