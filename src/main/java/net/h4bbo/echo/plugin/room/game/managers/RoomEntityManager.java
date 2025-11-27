@@ -14,19 +14,32 @@ import net.h4bbo.echo.plugin.room.RoomPlugin;
 import net.h4bbo.echo.plugin.room.game.Room;
 import net.h4bbo.echo.plugin.room.game.entities.RoomPlayerEntity;
 import net.h4bbo.echo.plugin.room.game.factory.RoomEntityFactory;
+import net.h4bbo.echo.plugin.room.services.RoomService;
 import net.h4bbo.echo.storage.models.user.UserData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RoomEntityManager extends IRoomEntityManager {
-    private SynchronizedMap<Integer, IEntity> entityMap;
+    private final SynchronizedMap<Integer, IEntity> entityMap;
 
     public RoomEntityManager(IRoom room) {
         super(room);
         this.entityMap = new SynchronizedMap<>();
     }
+
+    public <T> List<T> getEntities(Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        for (Object entity : this.entityMap.values()) {
+            try {
+                result.add(clazz.cast(entity));
+            } catch (ClassCastException e) {
+                // Skip incompatible types
+            }
+        }
+        return result;
+    }
+
 
     /**
      * Finds the next lowest available instance ID
@@ -35,7 +48,7 @@ public class RoomEntityManager extends IRoomEntityManager {
     private int getNextAvailableInstanceId() {
         int nextId = 0;
 
-        var occupiedInstanceIds = this.entityMap.values().stream()
+        var occupiedInstanceIds = this.entityMap.stream()
                 .map(x -> x.getRoomEntity().getInstanceId())
                 .collect(Collectors.toSet());
 
@@ -49,10 +62,13 @@ public class RoomEntityManager extends IRoomEntityManager {
 
     @Override
     public void enter(IEntity entity) {
-        var roomEntity = RoomEntityFactory.create(entity);
-        roomEntity.setInstanceId(this.getNextAvailableInstanceId());
+        Objects.requireNonNull(entity, "Entity parameter cannot be null");
+
+        var roomEntity = RoomEntityFactory.create(entity, this.getRoom());
+        Objects.requireNonNull(roomEntity, "RoomEntity instance cannot be null, possibly missing a mapped entity type?");
         entity.attr(RoomEntity.DATA_KEY).set(roomEntity);
 
+        roomEntity.setInstanceId(this.getNextAvailableInstanceId());
         this.entityMap.put(entity.attr(UserData.DATA_KEY).get().getId(), entity);
 
         if (entity.getType().isClient()) {
@@ -66,11 +82,12 @@ public class RoomEntityManager extends IRoomEntityManager {
                     .append(DataCodec.BYTES, this.getRoom().getData().getId())
                     .send(entity);
 
-            //PacketCodec.create(46)
-            //        .append(DataCodec.BYTES, "landscape")
-            //        .append(DataCodec.BYTES, "/")
-            //        .append(DataCodec.BYTES, "0")
-            //        .send(entity);
+            var dataService = this.getRoom()
+                .getPlugin()
+                .getServices()
+                .getRequiredService(IRoomService.class);
+
+            dataService.saveRoomSlots(this.getRoom().getData().getId(), this.getEntities(IPlayer.class).size());
 
             System.out.println("Instance ID: " + roomEntity.getInstanceId());
         }

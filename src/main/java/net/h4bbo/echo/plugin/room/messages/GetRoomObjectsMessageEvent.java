@@ -17,6 +17,12 @@ public class GetRoomObjectsMessageEvent extends MessageEvent<RoomPlugin> {
         PacketCodec.create(32)
                 .append(DataCodec.VL64_INT, 0)
                 .send(player);
+
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), RoomDirectoryMessageEvent.class);
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetHeightMapMessageEvent.class);
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomAdMessageEvent.class);
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomStatusMessageEvent.class);
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomObjectsMessageEvent.class);
     }
 
     @Override

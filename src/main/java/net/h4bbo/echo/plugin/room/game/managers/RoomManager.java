@@ -6,6 +6,7 @@ import net.h4bbo.echo.api.game.room.IRoom;
 import net.h4bbo.echo.api.services.room.IRoomService;
 import net.h4bbo.echo.plugin.room.RoomPlugin;
 import net.h4bbo.echo.plugin.room.game.Room;
+import net.h4bbo.echo.plugin.room.listeners.PlayerListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class RoomManager {
             return activeRooms.get(roomId);
         }
 
-        var room = new Room(this.roomService.getRoom(roomId));
+        var room = new Room(this.plugin, this.roomService.getRoom(roomId));
 
         this.activeRooms.putIfAbsent(roomId, room);
 

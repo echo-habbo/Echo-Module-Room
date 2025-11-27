@@ -10,9 +10,13 @@ import net.h4bbo.echo.plugin.room.RoomPlugin;
 public class GetInterestMessageEvent extends MessageEvent<RoomPlugin> {
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
+        if (player.getRoomEntity().getInstanceId() > 0)
+            return;
+
         PacketCodec.create(258)
                 .append(DataCodec.VL64_INT, 0)
                 .send(player);
+
 
         player.getConnection().getMessageHandler().register(this.getPlugin(), RoomDirectoryMessageEvent.class);
         player.getConnection().getMessageHandler().register(this.getPlugin(), GetHeightMapMessageEvent.class);

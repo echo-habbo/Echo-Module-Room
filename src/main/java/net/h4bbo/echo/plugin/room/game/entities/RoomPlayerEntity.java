@@ -11,8 +11,8 @@ import net.h4bbo.echo.common.util.collections.SynchronizedMap;
 import net.h4bbo.echo.storage.models.user.UserData;
 
 public class RoomPlayerEntity extends RoomEntity {
-    public RoomPlayerEntity(IEntity entity) {
-        super(entity);
+    public RoomPlayerEntity(IRoom room, IEntity entity) {
+        super(room, entity);
     }
 
     @Override
