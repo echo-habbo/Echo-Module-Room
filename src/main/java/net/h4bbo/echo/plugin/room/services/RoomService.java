@@ -5,6 +5,8 @@ import net.h4bbo.echo.storage.StorageContextFactory;
 import net.h4bbo.echo.storage.models.room.RoomData;
 import net.h4bbo.echo.storage.models.user.UserData;
 import org.oldskooler.entity4j.Query;
+import org.oldskooler.entity4j.select.SelectionOrder;
+import org.oldskooler.entity4j.serialization.QuerySerializer;
 import org.oldskooler.simplelogger4j.SimpleLog;
 
 import java.sql.SQLException;
@@ -34,7 +36,14 @@ public class RoomService implements IRoomService {
 
     @Override
     public void saveRoomSlots(int roomId, int slots) {
+        try (var ctx = StorageContextFactory.getStorage()) {
+            ctx.from(RoomData.class)
+                    .filter(x -> x.equals(RoomData::getId, roomId))
+                    .update(x -> x.set(RoomData::getVisitorsNow, slots));
 
+        } catch (SQLException e) {
+            logger.error("Error loading rooms: ", e);
+        }
     }
 
     @Override
@@ -48,7 +57,7 @@ public class RoomService implements IRoomService {
                             on.eq(RoomData::getOwnerId, UserData::getId))
 
                     .filter(predicate)
-                    .orderBy(RoomData::getVisitorsNow, false);
+                    .orderBy(o -> o.col(RoomData::getVisitorsNow, SelectionOrder.DESC));
             return query.toList();
         } catch (SQLException e) {
             logger.error("Error loading rooms: ", e);

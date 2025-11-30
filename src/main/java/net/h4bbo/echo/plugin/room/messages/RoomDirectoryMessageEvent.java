@@ -17,8 +17,10 @@ public class RoomDirectoryMessageEvent extends MessageEvent<RoomPlugin> {
 
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), RoomDirectoryMessageEvent.class);
+
         var bytes = msg.readBytes(1);
-        var isPublic =  bytes[0] == 'A';
+        var isPublic = bytes[0] == 'A';
 
         if (!isPublic) {
             return;
@@ -27,6 +29,10 @@ public class RoomDirectoryMessageEvent extends MessageEvent<RoomPlugin> {
         int roomId = msg.get(DataCodec.VL64_INT);
         IRoom room = this.roomManager.tryAddRoom(roomId);
         room.getEntityManager().enter(player);
+
+        if (!player.getConnection().getMessageHandler().isRegistered(LeaveRoomMessageEvent.class)) {
+            player.getConnection().getMessageHandler().register(this.getPlugin(), LeaveRoomMessageEvent.class);
+        }
     }
 
     @Override

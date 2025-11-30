@@ -19,4 +19,9 @@ public class RoomPlayerEntity extends RoomEntity {
     public void resetState() {
 
     }
+
+    @Override
+    public void leaveRoom() {
+        
+    }
 }

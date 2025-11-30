@@ -11,6 +11,8 @@ import org.bouncycastle.util.Pack;
 public class GetRoomObjectsMessageEvent extends MessageEvent<RoomPlugin> {
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomObjectsMessageEvent.class);
+
         PacketCodec.create(30)
                 .send(player);
 
@@ -18,9 +20,6 @@ public class GetRoomObjectsMessageEvent extends MessageEvent<RoomPlugin> {
                 .append(DataCodec.VL64_INT, 0)
                 .send(player);
 
-        player.getConnection().getMessageHandler().deregister(this.getPlugin(), RoomDirectoryMessageEvent.class);
-        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetHeightMapMessageEvent.class);
-        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomAdMessageEvent.class);
         player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomStatusMessageEvent.class);
         player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomObjectsMessageEvent.class);
     }

@@ -10,7 +10,7 @@ import net.h4bbo.echo.plugin.room.RoomPlugin;
 public class GetInterestMessageEvent extends MessageEvent<RoomPlugin> {
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
-        if (player.getRoomEntity().getInstanceId() > 0)
+        if (player.isInRoom())
             return;
 
         PacketCodec.create(258)

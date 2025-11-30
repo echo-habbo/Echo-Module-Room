@@ -31,10 +31,11 @@ public class RoomPlugin extends JavaPlugin {
 
     private void resetVisits() {
         try (var ctx = StorageContextFactory.getStorage()) {
-            int rows = ctx.from(RoomData.class)
-                    .filter(f -> f.greater(RoomData::getVisitorsNow, 0))
-                    .update(s -> s.set(RoomData::getVisitorsNow, 0));
+            // int rows = ctx.from(RoomData.class)
+            //         .filter(f -> f.greater(RoomData::getVisitorsNow, 0))
+            //        .update(s -> s.set(RoomData::getVisitorsNow, 0));
 
+            int rows = 0;
             this.getLogger().debug("Reset {} room visitors", rows);
         } catch (SQLException ex) {
             this.getLogger().error("Error executing query: ", ex);

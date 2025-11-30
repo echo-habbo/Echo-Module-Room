@@ -10,6 +10,8 @@ import net.h4bbo.echo.plugin.room.RoomPlugin;
 public class GetRoomStatusMessageEvent extends MessageEvent<RoomPlugin> {
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetRoomStatusMessageEvent.class);
+
         PacketCodec.create(31)
                 .send(player);
     }

@@ -1,6 +1,5 @@
 package net.h4bbo.echo.plugin.room.game.managers;
 
-import net.h4bbo.echo.api.game.entity.EntityType;
 import net.h4bbo.echo.api.game.entity.IEntity;
 import net.h4bbo.echo.api.game.player.IPlayer;
 import net.h4bbo.echo.api.game.room.IRoom;
@@ -10,11 +9,7 @@ import net.h4bbo.echo.api.network.codecs.DataCodec;
 import net.h4bbo.echo.api.services.room.IRoomService;
 import net.h4bbo.echo.codecs.PacketCodec;
 import net.h4bbo.echo.common.util.collections.SynchronizedMap;
-import net.h4bbo.echo.plugin.room.RoomPlugin;
-import net.h4bbo.echo.plugin.room.game.Room;
-import net.h4bbo.echo.plugin.room.game.entities.RoomPlayerEntity;
 import net.h4bbo.echo.plugin.room.game.factory.RoomEntityFactory;
-import net.h4bbo.echo.plugin.room.services.RoomService;
 import net.h4bbo.echo.storage.models.user.UserData;
 
 import java.util.*;
@@ -91,5 +86,13 @@ public class RoomEntityManager extends IRoomEntityManager {
 
             System.out.println("Instance ID: " + roomEntity.getInstanceId());
         }
+    }
+
+    @Override
+    public void leave(IEntity entity) {
+        Objects.requireNonNull(entity, "Entity parameter cannot be null");
+
+        this.entityMap.remove(entity.attr(UserData.DATA_KEY).get().getId());
+        entity.attr(RoomEntity.DATA_KEY).set(null);
     }
 }

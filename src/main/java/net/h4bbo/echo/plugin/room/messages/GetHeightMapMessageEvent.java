@@ -10,6 +10,8 @@ import net.h4bbo.echo.plugin.room.RoomPlugin;
 public class GetHeightMapMessageEvent extends MessageEvent<RoomPlugin> {
     @Override
     public void handle(IPlayer player, IClientCodec msg) {
+        player.getConnection().getMessageHandler().deregister(this.getPlugin(), GetHeightMapMessageEvent.class);
+
         PacketCodec.create(28)
                 .send(player);
     }
