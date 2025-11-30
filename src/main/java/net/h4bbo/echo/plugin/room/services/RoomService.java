@@ -11,6 +11,7 @@ import org.oldskooler.simplelogger4j.SimpleLog;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class RoomService implements IRoomService {
@@ -47,7 +48,7 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public List<RoomData> getRooms(Function<Query.Filters<RoomData>, Query.Filters<RoomData>> predicate) {
+    public List<RoomData> getRooms(Consumer<Query.Filters<RoomData>> predicate) {
         try (var ctx = StorageContextFactory.getStorage()) {
             var query = ctx.from(RoomData.class).as("r")
                     .select(s -> s
@@ -55,9 +56,11 @@ public class RoomService implements IRoomService {
                             .col(UserData.class, UserData::getName).as("owner_name"))
                     .leftJoin(UserData.class, "u", on ->
                             on.eq(RoomData::getOwnerId, UserData::getId))
-
                     .filter(predicate)
-                    .orderBy(o -> o.col(RoomData::getVisitorsNow, SelectionOrder.DESC));
+                    .orderBy(o -> o
+                            .col(RoomData::getVisitorsNow).desc()
+                    );
+
             return query.toList();
         } catch (SQLException e) {
             logger.error("Error loading rooms: ", e);
