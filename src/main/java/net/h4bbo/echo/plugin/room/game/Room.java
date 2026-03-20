@@ -9,12 +9,13 @@ import net.h4bbo.echo.api.game.room.managers.IRoomEntityManager;
 import net.h4bbo.echo.plugin.room.RoomPlugin;
 import net.h4bbo.echo.plugin.room.game.managers.RoomEntityManager;
 import net.h4bbo.echo.storage.models.room.RoomData;
+import net.h4bbo.echo.storage.views.room.RoomDetailsView;
 
 public class Room extends IRoom {
     private final RoomEntityManager entityManager;
     private final RoomPlugin plugin;
 
-    public Room(RoomPlugin plugin, RoomData roomData) {
+    public Room(RoomPlugin plugin, RoomDetailsView roomData) {
         super(roomData);
         this.plugin = plugin;
         this.entityManager = new RoomEntityManager(this);

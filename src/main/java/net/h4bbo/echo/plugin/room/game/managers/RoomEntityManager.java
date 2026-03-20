@@ -82,7 +82,10 @@ public class RoomEntityManager extends IRoomEntityManager {
                 .getServices()
                 .getRequiredService(IRoomService.class);
 
-            dataService.saveRoomSlots(this.getRoom().getData().getId(), this.getEntities(IPlayer.class).size());
+            dataService.saveRoomSlots(
+                    this.getRoom().getData().getId(),
+                    this.getEntities(IPlayer.class).size()
+            );
 
             System.out.println("Instance ID: " + roomEntity.getInstanceId());
         }

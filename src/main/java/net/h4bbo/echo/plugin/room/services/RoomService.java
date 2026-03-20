@@ -4,6 +4,7 @@ import net.h4bbo.echo.api.services.room.IRoomService;
 import net.h4bbo.echo.storage.StorageContextFactory;
 import net.h4bbo.echo.storage.models.room.RoomData;
 import net.h4bbo.echo.storage.models.user.UserData;
+import net.h4bbo.echo.storage.views.room.RoomDetailsView;
 import org.oldskooler.entity4j.Query;
 import org.oldskooler.entity4j.select.SelectionOrder;
 import org.oldskooler.entity4j.serialization.QuerySerializer;
@@ -18,21 +19,21 @@ public class RoomService implements IRoomService {
     public static final SimpleLog logger = SimpleLog.of(RoomService.class);
 
     @Override
-    public RoomData getRoom(int roomId) {
-        return this.getRooms(x -> x.equals(RoomData::getId, roomId))
+    public RoomDetailsView getRoom(int roomId) {
+        return this.getRooms(x -> x.equals(RoomDetailsView::getId, roomId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new NullPointerException("Room with ID " + roomId + " not found"));
     }
 
     @Override
-    public List<RoomData> getRoomsByCategory(int categoryId) {
-        return this.getRooms(x -> x.equals(RoomData::getCategoryId, categoryId));
+    public List<RoomDetailsView> getRoomsByCategory(int categoryId) {
+        return this.getRooms(x -> x.equals(RoomDetailsView::getCategoryId, categoryId));
     }
 
     @Override
-    public List<RoomData> getRoomsByUserId(int userId) {
-        return this.getRooms(x -> x.equals(RoomData::getOwnerId, userId));
+    public List<RoomDetailsView> getRoomsByUserId(int userId) {
+        return this.getRooms(x -> x.equals(RoomDetailsView::getOwnerId, userId));
     }
 
     @Override
@@ -48,14 +49,9 @@ public class RoomService implements IRoomService {
     }
 
     @Override
-    public List<RoomData> getRooms(Consumer<Query.Filters<RoomData>> predicate) {
+    public List<RoomDetailsView> getRooms(Consumer<Query.Filters<RoomDetailsView>> predicate) {
         try (var ctx = StorageContextFactory.getStorage()) {
-            var query = ctx.from(RoomData.class).as("r")
-                    .select(s -> s
-                            .all(RoomData.class)
-                            .col(UserData.class, UserData::getName).as("owner_name"))
-                    .leftJoin(UserData.class, "u", on ->
-                            on.eq(RoomData::getOwnerId, UserData::getId))
+            var query = ctx.from(RoomDetailsView.class)
                     .filter(predicate)
                     .orderBy(o -> o
                             .col(RoomData::getVisitorsNow).desc()
